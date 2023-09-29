@@ -83,8 +83,6 @@
             var dic = new Dictionary<KanaPair, string[]>(DICTIONARY_CAPACITY);
 
             //ローマ字の優先順位はString配列のインデックス順
-            Debug.Log("生成");
-
             dic.Add(new('あ'), new string[] { "a" });
             dic.Add(new('い'), new string[] { "i" });
             dic.Add(new('う'), new string[] { "u", "wu", "whu" });

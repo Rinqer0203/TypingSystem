@@ -198,7 +198,7 @@
             foreach (var romaji in firstKanaRomajiPatterns)
                 m_RomajiPatternsChecker.AddPattern(romaji, 1);
 
-#if UNITY_EDITOR
+#if DEBUG
             Debug.Assert(m_RomajiPatternsChecker.IsEmpty == false, "ローマ字パターンが見つからない");
 #endif
         }
@@ -275,7 +275,7 @@
                     continue;
                 }
 
-#if UNITY_EDITOR
+#if DEBUG
                 Debug.LogWarning(currentKana + " : " + nextKana + " のローマ字パターンが見つからない");
 #endif
             }

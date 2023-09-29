@@ -39,7 +39,7 @@ namespace SampleTypingSystem
         private TextMeshProUGUI m_InputQueueTMPro;
 
         [SerializeField]
-        private int m_ValidInputQueueCapacity = 20;
+        private int m_ValidInputQueueCapacity = 40;
 
         [SerializeField]
         private TypingText[] m_TypingTexts;
