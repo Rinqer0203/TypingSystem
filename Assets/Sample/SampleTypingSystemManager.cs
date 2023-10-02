@@ -73,7 +73,7 @@ namespace SampleTypingSystem
 
         private void UpdateTMProTexts()
         {
-            static void SetCharArraySegment(TextMeshProUGUI text, ArraySegment<char> charArraySegment)
+            static void SetCharArraySegment(TextMeshProUGUI text, in ArraySegment<char> charArraySegment)
             {
                 text.SetCharArray(charArraySegment.Array, charArraySegment.Offset, charArraySegment.Count);
             }
@@ -92,10 +92,9 @@ namespace SampleTypingSystem
             m_TMProBuffer.Clear();
 
             //入力中のかなのローマ字入力パターン
-            var romajiPatterns = m_TypingSystem.GetRomajiPatterns();
-            foreach (var pattern in romajiPatterns)
+            foreach (var pattern in m_TypingSystem.GetCurrentRomajiPatterns())
             {
-                m_TMProBuffer.Add(pattern.Span);
+                m_TMProBuffer.Add(pattern);
                 m_TMProBuffer.Add(' ');
             }
             SetCharArraySegment(m_KanaPatternsTMPro, m_TMProBuffer.Segment);
@@ -107,10 +106,13 @@ namespace SampleTypingSystem
 
         private void OnTextInput(char inputChar)
         {
+            if (char.IsControl(inputChar))
+                return;
+
             m_IsDurty = true;
             m_InputQueue.Enqueue(inputChar);
 
-            if (m_TypingSystem.OnInput(inputChar) && m_TypingSystem.IsComplete)
+            if (m_TypingSystem.CheckInputChar(inputChar) && m_TypingSystem.IsComplete)
             {
                 m_TypingTextIndex = (m_TypingTextIndex + 1) % m_TypingTexts.Length;
                 m_TypingSystem.SetTypingKanaText(m_TypingTexts[m_TypingTextIndex].KanaText);

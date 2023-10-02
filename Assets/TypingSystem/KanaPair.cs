@@ -7,8 +7,7 @@
     /// </summary>
     internal readonly struct KanaPair : IEquatable<KanaPair>
     {
-        public readonly char FirstKana;
-        public readonly char NextKana;
+        public readonly char FirstKana, NextKana;
 
         public KanaPair(char firstKana, char nextKana = default)
         {

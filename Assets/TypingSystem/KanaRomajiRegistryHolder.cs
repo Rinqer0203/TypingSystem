@@ -13,7 +13,7 @@
         /// <summary>
         /// ローマ字パターンの最長文字数
         /// </summary>
-        const int MAX_ROMAJI_LENGTH = 4;
+        const int MAX_ROMAJI_PATTERN_LENGTH = 4;
 
         /// <summary>
         /// <see cref="KanaPair"/>が持ちうる最大のパターン数（余裕を持たせて実際より多い）
@@ -21,17 +21,24 @@
         const int MAX_PATTERN_CAPACITY = 16;
 
         /// <summary>
+        /// <see cref="GetRomajiPatternsOrEmpty(KanaPair)"/>のTry版
+        /// </summary>
+        bool TryGetRomajiPatterns(in KanaPair kanaPair, out ReadOnlySpan<string> romajiPatterns);
+
+        /// <summary>
         /// かなに対応するローマ字パターンを取得する
         /// </summary>
-        ReadOnlySpan<string> GetRomajiPatternsOrEmpty(KanaPair kanaPair);
+        ReadOnlySpan<string> GetRomajiPatternsOrEmpty(in KanaPair kanaPair);
 
         /// <summary>
         /// 最初の1文字のかなに対応するローマ字パターンと、2文字のかなに対応するローマ字パターンを取得する
         /// </summary>
-        void GetRomajiPatternsOrEmpty(KanaPair kanaPair
+        void GetRomajiPatternsOrEmpty(in KanaPair kanaPair
             , out ReadOnlySpan<string> currentKanaRomajiPatterns, out ReadOnlySpan<string> KanaPairRomajiPatterns);
 
-        bool ContainsKey(KanaPair kanaPair);
+        bool ContainsPattern(in KanaPair key, in ReadOnlySpan<char> romajiPattern);
+
+        bool ContainsKey(in KanaPair kanaPair);
     }
 
     internal static class KanaRomajiRegistryHolder
@@ -47,30 +54,44 @@
                 m_KanaRomajiDictionary = GenerateKanaRomajiDictionary();
             }
 
-            void IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(KanaPair kanaPair
-                , out ReadOnlySpan<string> currentKanaRomajiPatterns, out ReadOnlySpan<string> KanaPairRomajiPatterns)
+            void IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(in KanaPair kanaPair
+                , out ReadOnlySpan<string> firstKanaRomajiPatterns, out ReadOnlySpan<string> KanaPairRomajiPatterns)
             {
-                currentKanaRomajiPatterns = GetRomajiPatternsOrEmpty(kanaPair.FirstKana);
+                firstKanaRomajiPatterns = GetRomajiPatternsOrEmpty(new KanaPair(kanaPair.FirstKana));
                 if (kanaPair.NextKana == default)
                     KanaPairRomajiPatterns = ReadOnlySpan<string>.Empty;
                 else
-                    KanaPairRomajiPatterns = GetRomajiPatternsOrEmpty(kanaPair.FirstKana, kanaPair.NextKana);
+                    KanaPairRomajiPatterns = GetRomajiPatternsOrEmpty(kanaPair);
             }
 
-            ReadOnlySpan<string> IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(KanaPair kanaPair)
+            ReadOnlySpan<string> IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(in KanaPair kanaPair)
             {
-                return GetRomajiPatternsOrEmpty(kanaPair.FirstKana, kanaPair.NextKana);
+                return GetRomajiPatternsOrEmpty(kanaPair);
             }
 
-            bool IKanaRomajiRegistry.ContainsKey(KanaPair kanaPair)
+            bool IKanaRomajiRegistry.TryGetRomajiPatterns(in KanaPair kanaPair, out ReadOnlySpan<string> romajiPatterns)
+            {
+                romajiPatterns = GetRomajiPatternsOrEmpty(kanaPair);
+                return romajiPatterns.IsEmpty == false;
+            }
+
+            bool IKanaRomajiRegistry.ContainsPattern(in KanaPair kanaPair, in ReadOnlySpan<char> romajiPattern)
+            {
+                foreach (var pattern in GetRomajiPatternsOrEmpty(kanaPair))
+                    if (romajiPattern.SequenceEqual(pattern))
+                        return true;
+                return false;
+            }
+
+            bool IKanaRomajiRegistry.ContainsKey(in KanaPair kanaPair)
             {
                 return m_KanaRomajiDictionary.ContainsKey(kanaPair);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private ReadOnlySpan<string> GetRomajiPatternsOrEmpty(char currentKana, char nextKana = default)
+            private ReadOnlySpan<string> GetRomajiPatternsOrEmpty(KanaPair kanaPair)
             {
-                if (m_KanaRomajiDictionary.TryGetValue(new(currentKana, nextKana), out var romajiPatterns))
+                if (m_KanaRomajiDictionary.TryGetValue(kanaPair, out var romajiPatterns))
                     return romajiPatterns.AsSpan();
                 else
                     return ReadOnlySpan<string>.Empty;
@@ -351,7 +372,7 @@
             dic.Add(new('。'), new string[] { "." });
 
 #if DEBUG
-            Debug.Assert(dic.Count <= DICTIONARY_CAPACITY, "KanaRomajiDictionaryのキャパシティを超えた（GC Alloc)");
+            Debug.Assert(dic.Count <= DICTIONARY_CAPACITY, "KanaRomajiDictionaryのキャパシティを超えた");
 #endif
             return dic;
         }
