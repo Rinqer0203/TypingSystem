@@ -5,40 +5,37 @@ namespace Typing.Extensions
     using Typing;
     using UnityEngine;
 
-    public static class TypingSystemExtensions
+    public readonly struct RichColorTag
     {
-        public readonly struct RichColorTag
+        private readonly string m_TagPrefix;
+        private const string TAG_SUFFIX = "</color>";
+
+        public RichColorTag(Color color)
         {
-            private readonly string m_TagPrefix;
-            private const string TAG_SUFFIX = "</color>";
-
-            public RichColorTag(Color color)
-            {
-                //TODO:負荷計測
-                m_TagPrefix = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
-            }
-
-            public void WriteBufferToTaggedText(in ReadOnlySpan<char> text, StructBuffer<char> buffer)
-            {
-                buffer.Add(m_TagPrefix);
-                buffer.Add(text);
-                buffer.Add(TAG_SUFFIX);
-            }
+            m_TagPrefix = $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>";
         }
 
+        /// <summary>
+        /// 文字列をカラータグで囲んでバッファに書き込む
+        /// </summary>
+        /// <param name="text">タグで囲むテキスト</param>
+        /// <param name="buffer">書き込み先のバッファ</param>
+        public void WriteTaggedTextToBuffer(in ReadOnlySpan<char> text, int charLength, StructBuffer<char> buffer)
+        {
+            buffer.Clear();
+            buffer.Add(m_TagPrefix);
+            buffer.Add(text[..charLength]);
+            buffer.Add(TAG_SUFFIX);
+            buffer.Add(text[charLength..]);
+        }
+    }
+
+    public static class TypingSystemExtensions
+    {
         public static void SetCharSpan(this TMP_Text tmp, in ReadOnlySpan<char> text, StructBuffer<char> buffer)
         {
             buffer.Clear();
             buffer.Add(text);
-            tmp.SetCharArraySegment(buffer.Segment);
-            buffer.Clear();
-        }
-
-        public static void SetCharSpanWithColorTag(this TMP_Text tmp, in ReadOnlySpan<char> text, StructBuffer<char> buffer, RichColorTag colorTag, int charLength)
-        {
-            buffer.Clear();
-            colorTag.WriteBufferToTaggedText(text[..charLength], buffer);
-            buffer.Add(text.Slice(charLength));
             tmp.SetCharArraySegment(buffer.Segment);
             buffer.Clear();
         }
@@ -48,6 +45,9 @@ namespace Typing.Extensions
             tmp.SetCharArray(segment.Array, segment.Offset, segment.Count);
         }
 
+        /// <summary>
+        /// <see cref="TMP_Text"/>側でメモリ確保をしているのでGC Allocを気にする場合は注意
+        /// </summary>
         public static void ChangePrefixColor(this TMP_Text tmp, Color color, int charLength)
         {
             tmp.ForceMeshUpdate();
