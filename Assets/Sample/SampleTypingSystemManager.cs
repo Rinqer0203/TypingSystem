@@ -78,7 +78,28 @@ namespace SampleTypingSystem
                 text.SetCharArray(charArraySegment.Array, charArraySegment.Offset, charArraySegment.Count);
             }
 
+            static void SetTextPrefixColor(TextMeshProUGUI text, Color color, int length)
+            {
+
+            }
+
             m_TypingTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].Text);
+            m_TypingTextTMPro.ForceMeshUpdate();
+            var charInfo = m_TypingTextTMPro.textInfo.characterInfo;
+            var mesh = m_TypingTextTMPro.mesh;
+            var colors = mesh.colors32;
+
+            for (int i = 0; i < charInfo.Length / 2; i++)
+            {
+                int index = charInfo[i].index * 4;
+                for (int j = 0; j < 4; j++)
+                {
+                    colors[index + j] = Color.red;
+                }
+            }
+            m_TypingTextTMPro.UpdateGeometry(mesh, 0);
+
+
             m_TypingKanaTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].KanaText);
 
             //タイピング中の文字列の有効な入力
