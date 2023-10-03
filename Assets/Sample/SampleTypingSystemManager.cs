@@ -1,8 +1,10 @@
 using System;
 using TMPro;
 using Typing;
+using Typing.Extensions;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Profiling;
 
 namespace SampleTypingSystem
 {
@@ -73,39 +75,22 @@ namespace SampleTypingSystem
 
         private void UpdateTMProTexts()
         {
-            static void SetCharArraySegment(TextMeshProUGUI text, in ArraySegment<char> charArraySegment)
-            {
-                text.SetCharArray(charArraySegment.Array, charArraySegment.Offset, charArraySegment.Count);
-            }
-
-            static void SetTextPrefixColor(TextMeshProUGUI textMeshPro, Color color, int length)
-            {
-                textMeshPro.ForceMeshUpdate();
-                Color[] colors = textMeshPro.mesh.colors;
-
-                for (int i = 0; i < length; i++)
-                    for (int j = 0; j < 4; j++)
-                        colors[4 * i + j] = color;
-
-                textMeshPro.mesh.colors = colors;
-                textMeshPro.UpdateGeometry(textMeshPro.mesh, 0);
-            }
-
+            //タイピング対象の文字列を表示
             m_TypingTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].Text);
 
+            //タイピング対象のかな文字列を表示（入力済みの文字は緑色）
             m_TypingKanaTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].KanaText);
-            SetTextPrefixColor(m_TypingKanaTextTMPro, Color.green, m_TypingSystem.InputedKanaLength);
+            Profiler.BeginSample("あ");
+            m_TypingKanaTextTMPro.ChangePrefixColor(Color.green, m_TypingSystem.InputedKanaLength);
+            Profiler.EndSample();
+            Debug.Break();
 
             //タイピング中の文字列の有効な入力
-            m_TMProBuffer.Add(m_TypingSystem.GetValidInputs());
-            SetCharArraySegment(m_ValidInputTMPro, m_TMProBuffer.Segment);
-            m_TMProBuffer.Clear();
+            m_ValidInputTMPro.SetCharSpan(m_TypingSystem.GetValidInputs(), m_TMProBuffer);
 
             //タイピングテキストのローマ字パターン
-            m_TMProBuffer.Add(m_TypingSystem.GetFullRomajiPattern());
-            SetCharArraySegment(m_TypingPatternTMPro, m_TMProBuffer.Segment);
-            m_TMProBuffer.Clear();
-            SetTextPrefixColor(m_TypingPatternTMPro, Color.green, m_TypingSystem.GetValidInputs().Length);
+            m_TypingPatternTMPro.SetCharSpan(m_TypingSystem.GetFullRomajiPattern(), m_TMProBuffer);
+            m_TypingPatternTMPro.ChangePrefixColor(Color.green, m_TypingSystem.GetValidInputs().Length);
 
             //入力中のかなのローマ字入力パターン
             foreach (var pattern in m_TypingSystem.GetCurrentRomajiPatterns())
@@ -113,11 +98,11 @@ namespace SampleTypingSystem
                 m_TMProBuffer.Add(pattern);
                 m_TMProBuffer.Add(' ');
             }
-            SetCharArraySegment(m_KanaPatternsTMPro, m_TMProBuffer.Segment);
+            m_KanaPatternsTMPro.SetCharArraySegment(m_TMProBuffer.Segment);
             m_TMProBuffer.Clear();
 
             //入力キュー
-            SetCharArraySegment(m_InputQueueTMPro, m_InputQueue.Segment);
+            m_InputQueueTMPro.SetCharArraySegment(m_InputQueue.Segment);
         }
 
         private void OnTextInput(char inputChar)
