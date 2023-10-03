@@ -7,6 +7,7 @@
     public interface ITypingSystem
     {
         bool IsComplete { get; }
+        int InputedKanaLength { get; }
         ReadOnlySpan<char> GetValidInputs();
         ReadOnlySpan<char> GetFullRomajiPattern();
         PatternEnumerable GetCurrentRomajiPatterns();
@@ -35,7 +36,9 @@
             /// <summary>
             /// 入力済みのかな文字列
             /// </summary>
-            public ReadOnlySpan<char> InputedKanaSpan => m_TypingKanaText.AsSpan(0, m_TypingKanaText.Length - m_CurrentTypingKanaText.Length);
+            public ReadOnlySpan<char> InputedKanaSpan => m_TypingKanaText.AsSpan(0, InputedKanaLength);
+
+            public int InputedKanaLength => m_TypingKanaText.Length - m_CurrentTypingKanaText.Length;
 
             public void AdvanceKana()
             {
@@ -94,6 +97,8 @@
         }
 
         public bool IsComplete => m_TypingKanaText.IsComplete;
+
+        public int InputedKanaLength => m_TypingKanaText.InputedKanaLength;
 
         /// <summary>
         /// 有効な入力文字を取得

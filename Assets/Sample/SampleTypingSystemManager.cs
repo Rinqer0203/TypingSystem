@@ -78,29 +78,23 @@ namespace SampleTypingSystem
                 text.SetCharArray(charArraySegment.Array, charArraySegment.Offset, charArraySegment.Count);
             }
 
-            static void SetTextPrefixColor(TextMeshProUGUI text, Color color, int length)
+            static void SetTextPrefixColor(TextMeshProUGUI textMeshPro, Color color, int length)
             {
+                textMeshPro.ForceMeshUpdate();
+                Color[] colors = textMeshPro.mesh.colors;
 
+                for (int i = 0; i < length; i++)
+                    for (int j = 0; j < 4; j++)
+                        colors[4 * i + j] = color;
+
+                textMeshPro.mesh.colors = colors;
+                textMeshPro.UpdateGeometry(textMeshPro.mesh, 0);
             }
 
             m_TypingTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].Text);
-            m_TypingTextTMPro.ForceMeshUpdate();
-            var charInfo = m_TypingTextTMPro.textInfo.characterInfo;
-            var mesh = m_TypingTextTMPro.mesh;
-            var colors = mesh.colors32;
-
-            for (int i = 0; i < charInfo.Length / 2; i++)
-            {
-                int index = charInfo[i].index * 4;
-                for (int j = 0; j < 4; j++)
-                {
-                    colors[index + j] = Color.red;
-                }
-            }
-            m_TypingTextTMPro.UpdateGeometry(mesh, 0);
-
 
             m_TypingKanaTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].KanaText);
+            SetTextPrefixColor(m_TypingKanaTextTMPro, Color.green, m_TypingSystem.InputedKanaLength);
 
             //タイピング中の文字列の有効な入力
             m_TMProBuffer.Add(m_TypingSystem.GetValidInputs());
@@ -111,6 +105,7 @@ namespace SampleTypingSystem
             m_TMProBuffer.Add(m_TypingSystem.GetFullRomajiPattern());
             SetCharArraySegment(m_TypingPatternTMPro, m_TMProBuffer.Segment);
             m_TMProBuffer.Clear();
+            SetTextPrefixColor(m_TypingPatternTMPro, Color.green, m_TypingSystem.GetValidInputs().Length);
 
             //入力中のかなのローマ字入力パターン
             foreach (var pattern in m_TypingSystem.GetCurrentRomajiPatterns())

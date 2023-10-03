@@ -23,22 +23,22 @@
         /// <summary>
         /// <see cref="GetRomajiPatternsOrEmpty(KanaPair)"/>のTry版
         /// </summary>
-        bool TryGetRomajiPatterns(in KanaPair kanaPair, out ReadOnlySpan<string> romajiPatterns);
+        bool TryGetRomajiPatterns(KanaPair kanaPair, out ReadOnlySpan<string> romajiPatterns);
 
         /// <summary>
         /// かなに対応するローマ字パターンを取得する
         /// </summary>
-        ReadOnlySpan<string> GetRomajiPatternsOrEmpty(in KanaPair kanaPair);
+        ReadOnlySpan<string> GetRomajiPatternsOrEmpty(KanaPair kanaPair);
 
         /// <summary>
         /// 最初の1文字のかなに対応するローマ字パターンと、2文字のかなに対応するローマ字パターンを取得する
         /// </summary>
-        void GetRomajiPatternsOrEmpty(in KanaPair kanaPair
+        void GetRomajiPatternsOrEmpty(KanaPair kanaPair
             , out ReadOnlySpan<string> currentKanaRomajiPatterns, out ReadOnlySpan<string> KanaPairRomajiPatterns);
 
-        bool ContainsPattern(in KanaPair key, in ReadOnlySpan<char> romajiPattern);
+        bool ContainsPattern(KanaPair key, in ReadOnlySpan<char> romajiPattern);
 
-        bool ContainsKey(in KanaPair kanaPair);
+        bool ContainsKey(KanaPair kanaPair);
     }
 
     internal static class KanaRomajiRegistryHolder
@@ -54,7 +54,7 @@
                 m_KanaRomajiDictionary = GenerateKanaRomajiDictionary();
             }
 
-            void IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(in KanaPair kanaPair
+            void IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(KanaPair kanaPair
                 , out ReadOnlySpan<string> firstKanaRomajiPatterns, out ReadOnlySpan<string> KanaPairRomajiPatterns)
             {
                 firstKanaRomajiPatterns = GetRomajiPatternsOrEmpty(new KanaPair(kanaPair.FirstKana));
@@ -64,18 +64,18 @@
                     KanaPairRomajiPatterns = GetRomajiPatternsOrEmpty(kanaPair);
             }
 
-            ReadOnlySpan<string> IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(in KanaPair kanaPair)
+            ReadOnlySpan<string> IKanaRomajiRegistry.GetRomajiPatternsOrEmpty(KanaPair kanaPair)
             {
                 return GetRomajiPatternsOrEmpty(kanaPair);
             }
 
-            bool IKanaRomajiRegistry.TryGetRomajiPatterns(in KanaPair kanaPair, out ReadOnlySpan<string> romajiPatterns)
+            bool IKanaRomajiRegistry.TryGetRomajiPatterns(KanaPair kanaPair, out ReadOnlySpan<string> romajiPatterns)
             {
                 romajiPatterns = GetRomajiPatternsOrEmpty(kanaPair);
                 return romajiPatterns.IsEmpty == false;
             }
 
-            bool IKanaRomajiRegistry.ContainsPattern(in KanaPair kanaPair, in ReadOnlySpan<char> romajiPattern)
+            bool IKanaRomajiRegistry.ContainsPattern(KanaPair kanaPair, in ReadOnlySpan<char> romajiPattern)
             {
                 foreach (var pattern in GetRomajiPatternsOrEmpty(kanaPair))
                     if (romajiPattern.SequenceEqual(pattern))
@@ -83,7 +83,7 @@
                 return false;
             }
 
-            bool IKanaRomajiRegistry.ContainsKey(in KanaPair kanaPair)
+            bool IKanaRomajiRegistry.ContainsKey(KanaPair kanaPair)
             {
                 return m_KanaRomajiDictionary.ContainsKey(kanaPair);
             }
