@@ -38,6 +38,9 @@
             /// </summary>
             public ReadOnlySpan<char> InputedKanaSpan => m_TypingKanaText.AsSpan(0, InputedKanaLength);
 
+            /// <summary>
+            /// 入力済みのかな文字列の長さ
+            /// </summary>
             public int InputedKanaLength => m_TypingKanaText.Length - m_CurrentTypingKanaText.Length;
 
             public void AdvanceKana()
@@ -211,33 +214,30 @@
             if (kanaPair.NextKana != default)
             {
                 //「っ」「ん」のローマ字パターンをチェック
-                if (kanaPair.FirstKana == 'っ')
+                if (kanaPair.FirstKana == 'っ' &&
+                    m_IKanaRomajiRegistry.TryGetRomajiPatterns(new KanaPair(kanaPair.NextKana), out var nextKanaPatterns))
                 {
-                    if (m_IKanaRomajiRegistry.TryGetRomajiPatterns(new KanaPair(kanaPair.NextKana), out var nextKanaPatterns))
+                    static bool Contains(in ReadOnlySpan<char> chars, char target)
                     {
-                        static bool Contains(in ReadOnlySpan<char> chars, char target)
-                        {
-                            for (int i = 0; i < chars.Length; i++)
-                                if (chars[i] == target)
-                                    return true;
-                            return false;
-                        }
-
-                        Span<char> romajiInitials = stackalloc char[nextKanaPatterns.Length];
-                        int index = 0;
-
-                        foreach (var romaji in nextKanaPatterns)
-                            if (romaji.Length > 1 && Contains(romajiInitials, romaji[0]) == false)
-                            {
-                                m_RomajiPatternsChecker.AddPattern(romaji[0], 1);
-                                romajiInitials[index++] = romaji[0];
-                            }
+                        for (int i = 0; i < chars.Length; i++)
+                            if (chars[i] == target)
+                                return true;
+                        return false;
                     }
+
+                    Span<char> romajiInitials = stackalloc char[nextKanaPatterns.Length];
+                    int index = 0;
+
+                    foreach (var romaji in nextKanaPatterns)
+                        if (romaji.Length > 1 && Contains(romajiInitials, romaji[0]) == false)
+                        {
+                            m_RomajiPatternsChecker.AddPattern(romaji[0], 1);
+                            romajiInitials[index++] = romaji[0];
+                        }
                 }
-                else if (kanaPair.FirstKana == 'ん')
+                else if (kanaPair.FirstKana == 'ん' && CanNPattern(kanaPair.NextKana))
                 {
-                    if (CanNPattern(kanaPair.NextKana))
-                        m_RomajiPatternsChecker.AddPattern('n', 1);
+                    m_RomajiPatternsChecker.AddPattern('n', 1);
                 }
             }
 
@@ -265,8 +265,6 @@
         private void GenerateFullRomajiPattern()
         {
             m_FullRomajiPatternBuffer.Clear();
-
-            var inputedKanaSpan = m_TypingKanaText.InputedKanaSpan;
             int kanaIndex = 0;
 
             //入力済みの文字をパターンに追加
@@ -274,7 +272,7 @@
 
             //ローマ字パターン入力途中か「っ」を最後に入力した状態なら優先度の高いパターンを追加
             if (m_RomajiPatternsChecker.IsComplete == false && m_RomajiPatternsChecker.ValidInputCount > 0 ||
-                inputedKanaSpan.Length > 0 && inputedKanaSpan[^1] == 'っ')
+                m_TypingKanaText.InputedKanaSpan.Length > 0 && m_TypingKanaText.InputedKanaSpan[^1] == 'っ')
             {
                 m_FullRomajiPatternBuffer.Add(m_RomajiPatternsChecker.GetTopPriorityPattern(out var kanaLength));
                 kanaIndex += kanaLength;
@@ -304,24 +302,19 @@
                 //「っ」「ん」のローマ字パターンをチェック
                 if (nextKana != default)
                 {
-                    if (currentKana == 'っ')
+                    if (currentKana == 'っ' && m_IKanaRomajiRegistry.TryGetRomajiPatterns(new KanaPair(nextKana), out var nextKanaPatterns))
                     {
-                        if (m_IKanaRomajiRegistry.TryGetRomajiPatterns(new KanaPair(nextKana), out var nextKanaPatterns))
-                        {
-                            bool isAdded = false;
-                            foreach (var romaji in nextKanaPatterns)
+                        bool isAdded = false;
+                        foreach (var romaji in nextKanaPatterns)
+                            if (romaji.Length > 1)
                             {
-                                if (romaji.Length > 1)
-                                {
-                                    m_FullRomajiPatternBuffer.Add(romaji[0]);
-                                    isAdded = true;
-                                    break;
-                                }
+                                m_FullRomajiPatternBuffer.Add(romaji[0]);
+                                isAdded = true;
+                                break;
                             }
 
-                            if (isAdded)
-                                continue;
-                        }
+                        if (isAdded)
+                            continue;
                     }
                     else if (currentKana == 'ん' && CanNPattern(nextKana))
                     {

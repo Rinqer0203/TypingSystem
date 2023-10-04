@@ -6,7 +6,7 @@
     using UnityEngine;
 
     /// <summary>
-    /// ひらがなに対応するローマ字パターンを管理
+    /// がなに対応するローマ字パターンを管理
     /// </summary>
     internal interface IKanaRomajiRegistry
     {
@@ -36,7 +36,7 @@
         void GetRomajiPatternsOrEmpty(KanaPair kanaPair
             , out ReadOnlySpan<string> currentKanaRomajiPatterns, out ReadOnlySpan<string> KanaPairRomajiPatterns);
 
-        bool ContainsPattern(KanaPair key, in ReadOnlySpan<char> romajiPattern);
+        bool ContainsPattern(KanaPair kanaPair, in ReadOnlySpan<char> romajiPattern);
 
         bool ContainsKey(KanaPair kanaPair);
     }
