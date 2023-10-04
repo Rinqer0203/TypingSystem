@@ -19,6 +19,7 @@ namespace Typing.Extensions
         /// 文字列をカラータグで囲んでバッファに書き込む
         /// </summary>
         /// <param name="text">タグで囲むテキスト</param>
+        /// <param name="charLength">タグで囲む先頭からの文字数</param>
         /// <param name="buffer">書き込み先のバッファ</param>
         public void WriteTaggedTextToBuffer(in ReadOnlySpan<char> text, int charLength, StructBuffer<char> buffer)
         {
@@ -30,7 +31,7 @@ namespace Typing.Extensions
         }
     }
 
-    public static class TypingSystemExtensions
+    public static class TextMeshProExtensions
     {
         public static void SetCharSpan(this TMP_Text tmp, in ReadOnlySpan<char> text, StructBuffer<char> buffer)
         {
@@ -51,7 +52,7 @@ namespace Typing.Extensions
         public static void ChangePrefixColor(this TMP_Text tmp, Color color, int charLength)
         {
             tmp.ForceMeshUpdate();
-            Color[] colors = tmp.mesh.colors;
+            var colors = tmp.mesh.colors;
 
             for (int i = 0; i < charLength; i++)
                 for (int j = 0; j < 4; j++)

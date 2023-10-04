@@ -28,13 +28,13 @@ namespace SampleTypingSystem
         private TextMeshProUGUI m_TypingKanaTextTMPro;
 
         [SerializeField]
-        private TextMeshProUGUI m_TypingPatternTMPro;
+        private TextMeshProUGUI m_TypingFullPatternTMPro;
 
         [SerializeField]
         private TextMeshProUGUI m_ValidInputTMPro;
 
         [SerializeField]
-        private TextMeshProUGUI m_KanaPatternsTMPro;
+        private TextMeshProUGUI m_PermittedRomajiPatternsTMPro;
 
         [SerializeField]
         private TextMeshProUGUI m_InputQueueTMPro;
@@ -79,8 +79,6 @@ namespace SampleTypingSystem
 
         private void UpdateTMProTexts()
         {
-            //TODO:変数名を変更
-
             //タイピング対象の文字列を表示
             m_TypingTextTMPro.SetText(m_TypingTexts[m_TypingTextIndex].Text);
 
@@ -90,20 +88,20 @@ namespace SampleTypingSystem
             m_TMProBuffer.Clear();
 
             //タイピングテキストのローマ字パターン（入力済みの文字は緑色）
-            m_RichColorTag.WriteTaggedTextToBuffer(m_TypingSystem.GetFullRomajiPattern(), m_TypingSystem.GetValidInputs().Length, m_TMProBuffer);
-            m_TypingPatternTMPro.SetCharArraySegment(m_TMProBuffer.Segment);
+            m_RichColorTag.WriteTaggedTextToBuffer(m_TypingSystem.FullRomajiPatternSpan, m_TypingSystem.ValidInputSpan.Length, m_TMProBuffer);
+            m_TypingFullPatternTMPro.SetCharArraySegment(m_TMProBuffer.Segment);
             m_TMProBuffer.Clear();
 
             //タイピング中の文字列の有効な入力
-            m_ValidInputTMPro.SetCharSpan(m_TypingSystem.GetValidInputs(), m_TMProBuffer);
+            m_ValidInputTMPro.SetCharSpan(m_TypingSystem.ValidInputSpan, m_TMProBuffer);
 
-            //入力中のかなのローマ字入力パターン
-            foreach (var pattern in m_TypingSystem.GetCurrentRomajiPatterns())
+            //入力可能なローマ字入力パターン
+            foreach (var pattern in m_TypingSystem.GetPermittedRomajiPatterns())
             {
                 m_TMProBuffer.Add(pattern);
                 m_TMProBuffer.Add(' ');
             }
-            m_KanaPatternsTMPro.SetCharArraySegment(m_TMProBuffer.Segment);
+            m_PermittedRomajiPatternsTMPro.SetCharArraySegment(m_TMProBuffer.Segment);
             m_TMProBuffer.Clear();
 
             //入力キュー

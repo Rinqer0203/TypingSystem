@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 10700717}
   - component: {fileID: 10700716}
   m_Layer: 5
-  m_Name: TypingPatternText
+  m_Name: TypingFullPatternText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,7 +181,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TypingPatternText
+  m_text: TypingFullPatternText
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: de0a6c088d2300044aad004afb6bd46e, type: 2}
   m_sharedMaterial: {fileID: -3953965318392281975, guid: de0a6c088d2300044aad004afb6bd46e, type: 2}
@@ -541,7 +541,7 @@ GameObject:
   - component: {fileID: 475564303}
   - component: {fileID: 475564302}
   m_Layer: 5
-  m_Name: KanaPatternsTextHeader
+  m_Name: PermittedRomajiPatternsTextHeader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1001,9 +1001,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TypingTextTMPro: {fileID: 1708832015}
   m_TypingKanaTextTMPro: {fileID: 324289904}
-  m_TypingPatternTMPro: {fileID: 10700716}
+  m_TypingFullPatternTMPro: {fileID: 10700716}
   m_ValidInputTMPro: {fileID: 1502126849}
-  m_KanaPatternsTMPro: {fileID: 1873062859}
+  m_PermittedRomajiPatternsTMPro: {fileID: 1873062859}
   m_InputQueueTMPro: {fileID: 821834996}
   m_ValidInputQueueCapacity: 40
   m_InputedColor: {r: 0, g: 1, b: 0, a: 1}
@@ -1311,7 +1311,7 @@ GameObject:
   - component: {fileID: 1873062860}
   - component: {fileID: 1873062859}
   m_Layer: 5
-  m_Name: KanaPatternsText
+  m_Name: PermittedRomajiPatternsText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1337,7 +1337,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: KanaPatternsText
+  m_text: PermittedRomajiPatternsText
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: de0a6c088d2300044aad004afb6bd46e, type: 2}
   m_sharedMaterial: {fileID: -3953965318392281975, guid: de0a6c088d2300044aad004afb6bd46e, type: 2}

@@ -8,9 +8,9 @@
     {
         bool IsComplete { get; }
         int InputedKanaLength { get; }
-        ReadOnlySpan<char> GetValidInputs();
-        ReadOnlySpan<char> GetFullRomajiPattern();
-        PatternEnumerable GetCurrentRomajiPatterns();
+        ReadOnlySpan<char> ValidInputSpan { get; }
+        ReadOnlySpan<char> FullRomajiPatternSpan { get; }
+        PatternEnumerable GetPermittedRomajiPatterns();
     }
 
     public sealed class TypingSystem : ITypingSystem
@@ -103,17 +103,17 @@
         /// <summary>
         /// 有効な入力文字を取得
         /// </summary>
-        public ReadOnlySpan<char> GetValidInputs() => m_ValidInputsBuffer.Span;
+        public ReadOnlySpan<char> ValidInputSpan => m_ValidInputsBuffer.Span;
 
         /// <summary>
         /// 現在の状態のフルサイズローマ字パターンを取得
         /// </summary>
-        public ReadOnlySpan<char> GetFullRomajiPattern() => m_FullRomajiPatternBuffer.Span;
+        public ReadOnlySpan<char> FullRomajiPatternSpan => m_FullRomajiPatternBuffer.Span;
 
         /// <summary>
         /// 入力判定中のパターンのイテレータを取得する(foreachで回す想定)
         /// </summary>
-        public PatternEnumerable GetCurrentRomajiPatterns() => m_RomajiPatternsChecker.GetPatterns();
+        public PatternEnumerable GetPermittedRomajiPatterns() => m_RomajiPatternsChecker.GetPatterns();
 
         public bool CheckInputChar(char inputChar)
         {
